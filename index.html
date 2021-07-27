@@ -5,32 +5,42 @@
 
 </header>
 <body>
-    <div id="form-container">
-        <label for="book-title">Title</label><br>
-        <input type="text" id="book-title" name="title" value="" required><br>
-        <label for="author">Author</label><br>
-        <input type="text" id="author" name="author" value="" required><br>
-        <label for="pages">Number of pages</label><br>
-        <input type="number" id="pages" name="pages" value="" required><br>
-        <label for="haveRead">Have you read this book?</label><br>
-        <input type="radio" id="haveReadTrue" name="haveRead" value="1" required>
-        <label for="haveReadTrue">Yes</label><br>
-        <input type="radio" id="haveReadFalse" name="haveRead" value="" required>
-        <label for="haveReadTrue">No</label><br>
-        <button id="submit">Add book</button>
-    </div>
-    <div id="book-display" class="flex-container">
 
+    <div id="page-layout">
+        <div id="form-container">
+            <div id="page-title">
+                <h1>My Library</h1>
+                <h2>Add a book</h2>
+            </div>
+            <label for="book-title">Title</label><br>
+            <input type="text" id="book-title" name="Title" value="" maxlength="25" required><br>
+            <label for="author">Author</label><br>
+            <input type="text" id="author" name="Author" value="" maxlength="25" required><br>
+            <label for="pages">Number of pages</label><br>
+            <input type="number" id="pages" name="Pages" value="" maxlength="4" min="0" required><br>
+            <label for="haveRead">Have you read this book?</label><br>
+            <input type="radio" id="haveReadTrue" name="haveRead" value="1" checked required>
+            <label for="haveReadTrue">Yes</label><br>
+            <input type="radio" id="haveReadFalse" name="haveRead" value="" required>
+            <label for="haveReadFalse">No</label><br>
+            <button id="submit">Add book</button>
+        </div>
+        <div id="book-display" class="flex-container">
+
+        </div>
     </div>
 </body>
 <script>
     let myLibrary = [];
 
     let inputs = document.querySelectorAll("input");
+    let labels = document.querySelectorAll("label");
     let bookDisplay = document.querySelector("#book-display");
     let submit = document.querySelector("#submit");
-    submit.addEventListener("click", addBookToLibrary);
-    
+    submit.addEventListener("click", function() {
+        if (checkInput() === true) addBookToLibrary();
+    });
+
     function Book(title, author, pages, haveRead){
         this.title = title,
         this.author = author,
@@ -39,7 +49,7 @@
     }
 
     Book.prototype.readStatus = function() {
-        return (`${(this.haveRead === true)? "Has been read.":"Has not been read."}`);
+        return (`${(this.haveRead)? "Has been read.":"Has not been read."}`);
     }
 
     function addBookToLibrary() {
@@ -56,34 +66,29 @@
         });
 
         myLibrary.forEach((element, index) => {
-            let interfaceElement = elementCreation("div", index, undefined, "book")
-
-            for (const key in element) { // group assignment & append for elements I do not need references for
-                if (key !== "readStatus" && key !== "haveRead"){
-                    let addElement = elementCreation("p", index, element[key], key)
-                    interfaceElement.appendChild(addElement);
-                }
-            }
-
-            let readElement = elementCreation("p", index, element.readStatus(), "haveRead"); // explicit assignments for elements I need references for
-            let readButton = elementCreation("button", index, "Toggle status", "toggleRead");
-            let removeButton = elementCreation("button", index, "Remove book", "remove")
+            let bookElement = elementCreation("div", index, undefined, "book")
+            
+            let titleElement = elementCreation("p", index, element.title, "title", bookElement);
+            let authorElement = elementCreation("p", index, element.author, "author", bookElement);
+            let pagesElement = elementCreation("p", index, `${element.pages} pages long.`, "pages", bookElement);
+            let readElement = elementCreation("p", index, element.readStatus(), "haveRead", bookElement); // explicit assignments for elements I need references for
+            let readButton = elementCreation("button", index, "Toggle status", "toggleRead", bookElement);
+            let removeButton = elementCreation("button", index, "Remove book", "remove", bookElement)
 
             readButton.addEventListener("click", function() {
                 element.haveRead = (element.haveRead === true)? false: true;
                 readElement.textContent = element.readStatus();
-                readElement.appendChild(readButton);
+                bookElement.insertBefore(readButton, removeButton);
+                (readElement.textContent === "has been read")? element.classList.add("readBook"):element.classList
             });
 
             removeButton.addEventListener("click", function() {
-                interfaceElement.remove();
+                bookElement.remove();
                 myLibrary.splice(index, 1);
+                updateInterface();
             })
 
-            interfaceElement.appendChild(readElement);
-            readElement.appendChild(readButton);
-            interfaceElement.appendChild(removeButton);
-            bookDisplay.appendChild(interfaceElement);
+            bookDisplay.appendChild(bookElement);
 
             
 
@@ -91,16 +96,31 @@
 
     }
 
-    function elementCreation(type, dataKey, textContent, cssClass){
+    function elementCreation(type, dataKey, textContent, cssClass, parentNode){
         let element = document.createElement(type);
         element.setAttribute("data-key", dataKey);
         element.textContent = textContent;
         element.classList.add(cssClass);
+        if (parentNode) parentNode.appendChild(element);
         return element;
     }
 
+    function checkInput(){
 
+        let inputCheck = true;
 
+        for(let i= 0; i < inputs.length - 2; i++){
+            if (inputs[i].value == false){
+                labels[i].textContent = `Please enter: ${inputs[i].name}`;
+                labels[i].style.color = "red";
+                inputCheck = false;
+            } else {
+                labels[i].textContent = `${inputs[i].name}`;
+                labels[i].style.color = "white";
+            }
+        }
+        return inputCheck;
+    }
 
 </script>
 </html>
