@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <link rel="stylesheet" href="myStyles.css">
+
+</header>
+<body>
+    <div id="form-container">
+        <label for="book-title">Title</label><br>
+        <input type="text" id="book-title" name="title" value="" required><br>
+        <label for="author">Author</label><br>
+        <input type="text" id="author" name="author" value="" required><br>
+        <label for="pages">Number of pages</label><br>
+        <input type="number" id="pages" name="pages" value="" required><br>
+        <label for="haveRead">Have you read this book?</label><br>
+        <input type="radio" id="haveReadTrue" name="haveRead" value="1" required>
+        <label for="haveReadTrue">Yes</label><br>
+        <input type="radio" id="haveReadFalse" name="haveRead" value="" required>
+        <label for="haveReadTrue">No</label><br>
+        <button id="submit">Add book</button>
+    </div>
+    <div id="book-display" class="flex-container">
+
+    </div>
+</body>
+<script>
+    let myLibrary = [];
+
+    let inputs = document.querySelectorAll("input");
+    let bookDisplay = document.querySelector("#book-display");
+    let submit = document.querySelector("#submit");
+    submit.addEventListener("click", addBookToLibrary);
+    
+    function Book(title, author, pages, haveRead){
+        this.title = title,
+        this.author = author,
+        this.pages = pages,
+        this.haveRead = haveRead;
+    }
+
+    Book.prototype.readStatus = function() {
+        return (`${(this.haveRead === true)? "Has been read.":"Has not been read."}`);
+    }
+
+    function addBookToLibrary() {
+        myLibrary[myLibrary.length] = new Book(inputs[0].value, inputs[1].value, inputs[2].value, inputs[3].checked);
+        // myLibrary[myLibrary.length - 1] = Array.from(inputs).reduce((bookObj, input) => ({...bookObj, [input.name]:input.value}), {});
+        updateInterface();
+    }
+
+    function updateInterface() {
+
+        let bookRemove = bookDisplay.querySelectorAll("div");
+        bookRemove.forEach(book => {
+            book.remove();
+        });
+
+        myLibrary.forEach((element, index) => {
+            let interfaceElement = elementCreation("div", index, undefined, "book")
+
+            for (const key in element) { // group assignment & append for elements I do not need references for
+                if (key !== "readStatus" && key !== "haveRead"){
+                    let addElement = elementCreation("p", index, element[key], key)
+                    interfaceElement.appendChild(addElement);
+                }
+            }
+
+            let readElement = elementCreation("p", index, element.readStatus(), "haveRead"); // explicit assignments for elements I need references for
+            let readButton = elementCreation("button", index, "Toggle status", "toggleRead");
+            let removeButton = elementCreation("button", index, "Remove book", "remove")
+
+            readButton.addEventListener("click", function() {
+                element.haveRead = (element.haveRead === true)? false: true;
+                readElement.textContent = element.readStatus();
+                readElement.appendChild(readButton);
+            });
+
+            removeButton.addEventListener("click", function() {
+                interfaceElement.remove();
+                myLibrary.splice(index, 1);
+            })
+
+            interfaceElement.appendChild(readElement);
+            readElement.appendChild(readButton);
+            interfaceElement.appendChild(removeButton);
+            bookDisplay.appendChild(interfaceElement);
+
+            
+
+        });
+
+    }
+
+    function elementCreation(type, dataKey, textContent, cssClass){
+        let element = document.createElement(type);
+        element.setAttribute("data-key", dataKey);
+        element.textContent = textContent;
+        element.classList.add(cssClass);
+        return element;
+    }
+
+
+
+
+</script>
+</html>
