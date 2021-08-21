@@ -66,14 +66,14 @@
         });
 
         myLibrary.forEach((element, index) => {
-            let bookElement = elementCreation("div", index, undefined, "book")
+            let bookElement = elementCreation("div", index, undefined, "book");
             
             let titleElement = elementCreation("p", index, element.title, "title", bookElement);
             let authorElement = elementCreation("p", index, element.author, "author", bookElement);
             let pagesElement = elementCreation("p", index, `${element.pages} pages long.`, "pages", bookElement);
             let readElement = elementCreation("p", index, element.readStatus(), "haveRead", bookElement); // explicit assignments for elements I need references for
             let readButton = elementCreation("button", index, "Toggle status", "toggleRead", bookElement);
-            let removeButton = elementCreation("button", index, "Remove book", "remove", bookElement)
+            let removeButton = elementCreation("button", index, "Remove book", "remove", bookElement);
 
             readButton.addEventListener("click", function() {
                 element.haveRead = (element.haveRead === true)? false: true;
